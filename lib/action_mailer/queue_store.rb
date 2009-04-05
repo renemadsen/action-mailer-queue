@@ -25,15 +25,22 @@ module ActionMailer
       end
     
       def tmail=(mail)
+        self.method = mailer_name + ".#{@template}"
         self.to = mail.to.uniq.join(",") unless mail.to.blank?
+        self.cc = self.cc.split(",") unless self.c.blank?
+        self.bcc = self.bcc.split(",") unless self.bcc.blank?
+        self.reply_to = self.reply_to.split(",") unless self.reply_to.blank?
         self.from = mail.from.uniq.join(",") unless mail.from.blank?
-        self.subject = mail.subject unless mail.subject.blank?
+        self.subject = mail.subject unless mail.subject.blank?     
         self.content = mail.encoded
       end
     
       def to_tmail
         tmail = TMail::Mail.parse(self.content)
         tmail.to = self.to.split(",") unless self.to.blank?
+        tmail.cc = self.cc.split(",") unless self.cc.blank?
+        tmail.bcc = self.bcc.split(",") unless self.bcc.blank?
+        tmail.reply_to = self.reply_to.split(",") unless self.reply_to.blank?
         tmail.from = self.from.split(",") unless self.from.blank?
         tmail.subject = self.subject unless self.subject.blank?
         return tmail

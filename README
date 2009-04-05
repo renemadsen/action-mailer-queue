@@ -1,7 +1,14 @@
 ActionMailer::Queue
 ===================
 
-Introduction goes here.
+This is a fork of Beam's action_mailer_queue
+
+It includes everything that the original does:
+  - render emails into database queue with sent and priority flags
+  - methods to process queue
+
+This fork adds:
+  - storing extra mail fields cc, bcc, reply_to, etc...
 
 Author
 ======

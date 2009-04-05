@@ -1,11 +1,15 @@
 class Create<%= class_name %> < ActiveRecord::Migration
   def self.up
     create_table "<%= table_name %>" do |t|
-      t.column :id,                       :integer
+      t.column :method,                   :string
       t.column :from,                     :string, :limit => 64, :default => nil
       t.column :to,                       :string, :limit => 64, :default => nil
+      t.column :cc,                       :string, :limit => 64, :default => nil
+      t.column :bcc,                      :string, :limit => 64, :default => nil
+      t.column :reply_to,                 :string, :limit => 64, :default => nil
       t.column :subject,                  :string, :limit => 64, :default => nil
       t.column :content,                  :longblob
+      t.column :encoding,                 :string, :limit => 64, :default => nil
       t.column :message_id,               :string, :limit => 64
       t.column :sent,                     :boolean, :default => false, :null => false
       t.column :attempts,                 :integer, :default => 0, :null => false
