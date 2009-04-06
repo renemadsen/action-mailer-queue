@@ -18,11 +18,11 @@ module ActionMailer
     end
   
     def queue
-      return Store.create_by_table_name(self.class.to_s.tableize)
+      return Store.create_by_table_name('emails')
     end
   
     def perform_delivery_action_mailer_queue(mail)
-      store = self.queue.new(:tmail => mail)
+      store = self.queue.new(:tmail => mail, :method =>  "#{mailer_name}.#{@template}")
       store.save
       mail.queue_id = store.id
       return true

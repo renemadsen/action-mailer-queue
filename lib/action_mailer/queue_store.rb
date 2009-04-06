@@ -25,9 +25,8 @@ module ActionMailer
       end
     
       def tmail=(mail)
-        self.method = mailer_name + ".#{@template}"
         self.to = mail.to.uniq.join(",") unless mail.to.blank?
-        self.cc = self.cc.split(",") unless self.c.blank?
+        self.cc = self.cc.split(",") unless self.cc.blank?
         self.bcc = self.bcc.split(",") unless self.bcc.blank?
         self.reply_to = self.reply_to.split(",") unless self.reply_to.blank?
         self.from = mail.from.uniq.join(",") unless mail.from.blank?
@@ -43,6 +42,7 @@ module ActionMailer
         tmail.reply_to = self.reply_to.split(",") unless self.reply_to.blank?
         tmail.from = self.from.split(",") unless self.from.blank?
         tmail.subject = self.subject unless self.subject.blank?
+        tmail.content_type = "text/html"
         return tmail
       end
     
@@ -54,7 +54,9 @@ module ActionMailer
     
       def deliver!
         raise MailAlreadySent if self.sent == true
-        mail = Mailer.deliver(self.to_tmail)
+       
+        mail_data = self.to_tmail
+        mail = Mailer.deliver(mail_data)
         self.message_id = mail.message_id
         self.sent = true
         self.sent_at = Time.now
