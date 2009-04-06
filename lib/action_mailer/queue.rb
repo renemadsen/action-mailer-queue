@@ -1,6 +1,9 @@
 module ActionMailer
   class Queue < ActionMailer::Base
 
+    @@table_name = 'emails'
+    cattr_accessor :table_name
+    
     @@delivery_method = :action_mailer_queue
     cattr_accessor :delivery_method
   
@@ -18,7 +21,7 @@ module ActionMailer
     end
   
     def queue
-      return Store.create_by_table_name('emails')
+      return Store.create_by_table_name(ActionMailer::Queue.table_name)
     end
   
     def perform_delivery_action_mailer_queue(mail)

@@ -14,6 +14,7 @@ module ActionMailer
       named_scope :without_error, :conditions => ["attempts = ?", 0]
     
       class MailAlreadySent < StandardError; end 
+      class MailInProgress < StandardError; end 
     
       def self.create_by_table_name(table_name)
         self.set_table_name table_name
@@ -53,13 +54,15 @@ module ActionMailer
       end
     
       def deliver!
-        raise MailAlreadySent if self.sent == true
-       
-        mail_data = self.to_tmail
-        mail = Mailer.deliver(mail_data)
+        self.reload
+        raise MailAlreadySent if self.sent?
+        raise MailInProgress if self.in_progress?
+        self.update_attribute(:in_progress, true)
+        mail = Mailer.deliver(self.to_tmail)
         self.message_id = mail.message_id
         self.sent = true
         self.sent_at = Time.now
+        self.in_progress = false
         self.save
         return mail
       rescue => err
@@ -67,6 +70,7 @@ module ActionMailer
         self.attempts += 1
         self.last_error = err.to_s
         self.last_attempt_at = Time.now
+        self.in_progress = false
         self.save
         return false
       end

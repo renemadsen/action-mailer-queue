@@ -9,6 +9,10 @@ It includes everything that the original does:
 
 This fork adds:
   - storing extra mail fields cc, bcc, reply_to, etc...
+  - forces all emails to be stored in an emails table  (eg - no need to have each mailer have it's own db table for a queue)
+  - creates an 'in_progress'
+    * If you process emails with a cron, and if you are using gmail or another external mail server, each email may take a while to actually send.  If the cron is frequent you don't want an overlap of emails being sent.
+  - adds a 'method' field to the emails table that tells you which mailer/template was used... 
 
 Author
 ======
@@ -57,8 +61,6 @@ Notification.queue.process! # { :limit => 100 } use scope for_send and with_proc
 
 Settings
 --------
-ActionMailer::Queue.delivery_method = :action_mailer_queue
-
 ActionMailer::Queue.limit_for_processing = 100
 # - limit for Notification.queue.process!
 
