@@ -26,11 +26,11 @@ module ActionMailer
       end
     
       def tmail=(mail)
-        self.to = mail.to.uniq.join(",") unless mail.to.blank?
-        self.cc = self.cc.split(",") unless self.cc.blank?
-        self.bcc = self.bcc.split(",") unless self.bcc.blank?
-        self.reply_to = self.reply_to.split(",") unless self.reply_to.blank?
-        self.from = mail.from.uniq.join(",") unless mail.from.blank?
+        self.to = mail['to'].to_s
+        self.cc = mail['cc'].to_s
+        self.bcc = mail['bcc'].to_s 
+        self.reply_to = mail['reply_to'].to_s
+        self.from = mail['from'].to_s
         self.subject = mail.subject unless mail.subject.blank?     
         self.content = mail.encoded
       end

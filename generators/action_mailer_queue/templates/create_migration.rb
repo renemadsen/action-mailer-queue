@@ -2,13 +2,14 @@ class Create<%= class_name %> < ActiveRecord::Migration
   def self.up
     create_table "<%= table_name %>" do |t|
       t.column :method,                   :string
-      t.column :from,                     :string, :limit => 64, :default => nil
-      t.column :to,                       :string, :limit => 64, :default => nil
-      t.column :cc,                       :string, :limit => 64, :default => nil
-      t.column :bcc,                      :string, :limit => 64, :default => nil
-      t.column :reply_to,                 :string, :limit => 64, :default => nil
-      t.column :subject,                  :string, :limit => 64, :default => nil
+      t.column :from,                     :string, :limit => 128, :default => nil
+      t.column :to,                       :text
+      t.column :cc,                       :text
+      t.column :bcc,                      :text
+      t.column :reply_to,                 :string, :limit => 128, :default => nil
+      t.column :subject,                  :string, :limit => 128, :default => nil
       t.column :content,                  :longblob
+      t.column :content_type,             :content_type, :limit => 64, :default => nil
       t.column :encoding,                 :string, :limit => 64, :default => nil
       t.column :message_id,               :string, :limit => 64
       t.column :in_progress,              :boolean, :default => false, :null => false

@@ -5,14 +5,18 @@ This is a fork of Beam's action_mailer_queue
 
 It includes everything that the original does:
   - render emails into database queue with sent and priority flags
-  - methods to process queue
+  - methods to process the email queue
 
 This fork adds:
   - storing extra mail fields cc, bcc, reply_to, etc...
-  - forces all emails to be stored in an emails table  (eg - no need to have each mailer have it's own db table for a queue)
-  - creates an 'in_progress'
-    * If you process emails with a cron, and if you are using gmail or another external mail server, each email may take a while to actually send.  If the cron is frequent you don't want an overlap of emails being sent.
+  - storing both friendly names and addresses (so they don't get lost)
+  - forces all emails to be stored in an emails table  (eg - no need to have each mailer have it's own db table for a 
+  queue)
+    - no need to create a separate table for each mailer
   - adds a 'method' field to the emails table that tells you which mailer/template was used... 
+  - creates an 'in_progress'
+    * If you process emails with a cron, and if you are using gmail or another external mail server, each email may take 
+    a while to actually send.  If the cron is frequent you don't want an overlap of emails being sent.
 
 Author
 ======
@@ -23,7 +27,6 @@ Based on plugin by
 Andrew Beam
 KRAXNET s.r.o.
 
-
 Usage
 =====
 
@@ -32,7 +35,8 @@ script/plugin install git://github.com/geoffevason/action-mailer-queue.git
 
 # Generate the emails table migration and Email model
 script/generate action_mailer_queue Email
-*** Right now you need to call the model 'Email'.  There is probably a nice way to make this configurable, but I didn't bother...
+*** Right now you need to call the model 'Email'.  There is probably a nice way to make this configurable, but I didn't 
+bother...
 
 # Mailers
 Mailers are made exactly as normal, just derived from the Email class
@@ -108,3 +112,4 @@ Email.queue.already_sent # emails already sent
 Email.queue.with_processing_rules # apply processing rules
 Email.queue.with_error # emails with more tries
 Email.queue.without_error # emails with 0 tries
+Notification.queue.without_error # emails with 0 tries
