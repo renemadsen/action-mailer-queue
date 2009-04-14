@@ -9,7 +9,7 @@ class Create<%= class_name %> < ActiveRecord::Migration
       t.column :reply_to,                 :string, :limit => 128, :default => nil
       t.column :subject,                  :string, :limit => 128, :default => nil
       t.column :content,                  :longblob
-      t.column :content_type,             :content_type, :limit => 64, :default => nil
+      t.column :content_type,             :string, :limit => 64, :default => nil
       t.column :encoding,                 :string, :limit => 64, :default => nil
       t.column :message_id,               :string, :limit => 64
       t.column :in_progress,              :boolean, :default => false, :null => false
