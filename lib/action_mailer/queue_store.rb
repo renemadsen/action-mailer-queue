@@ -38,7 +38,6 @@ module ActionMailer
         self.reply_to = mail['reply_to'].to_s
         self.from = mail['from'].to_s
         self.subject = mail.subject unless mail.subject.blank?
-#        mail.base64_encode!
         self.content = mail.encoded
       end
     
@@ -50,7 +49,6 @@ module ActionMailer
         tmail.reply_to = self.reply_to.split(",") unless self.reply_to.blank?
         tmail.from = self.from.split(",") unless self.from.blank?
         tmail.subject = self.subject unless self.subject.blank?
-#        tmail.content_type = 'text/html; charset="utf-8"'
         return tmail
       end
     
@@ -89,7 +87,6 @@ module ActionMailer
         end
       rescue => err
         raise MailAlreadySent if err.class == ActionMailer::Queue::Store::MailAlreadySent
-        self.last_error = err.to_s + ' ' + self.scheduled_time.strftime("%H:%M:00").to_s + ' '+ @current_time.to_s
         if err.class != ActionMailer::Queue::Store::NotApproved && err.class != ActionMailer::Queue::Store::NotScheduled
           self.attempts += 1
           self.last_attempt_at = Time.now

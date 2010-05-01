@@ -21,6 +21,9 @@ class Create<%= class_name %> < ActiveRecord::Migration
       t.column :sent_at,                  :datetime, :default => nil
       t.column :created_at,               :datetime, :default => nil
       t.column :updated_at,               :datetime, :default => nil
+      t.column :scheduled_time            :datetime, :default => nil
+      t.column :approved                  :boolean,  :default => false
+      t.column :immediately_delivery      :boolean,  :default => false
     end
   end
 

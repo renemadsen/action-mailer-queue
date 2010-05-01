@@ -1,13 +1,11 @@
 ActionMailer::Queue
 ===================
 
-This is a fork of Beam's action_mailer_queue
+This is a fork of geoffevason's action_mailer_queue
 
 It includes everything that the original does:
   - render emails into database queue with sent and priority flags
   - methods to process the email queue
-
-This fork adds:
   - storing extra mail fields cc, bcc, reply_to, etc...
   - storing both friendly names and addresses (so they don't get lost)
   - forces all emails to be stored in an emails table  (eg - no need to have each mailer have it's own db table for a 
@@ -18,12 +16,22 @@ This fork adds:
     * If you process emails with a cron, and if you are using gmail or another external mail server, each email may take 
     a while to actually send.  If the cron is frequent you don't want an overlap of emails being sent.
 
+This fork adds:
+  - The support for only send e-mails which are approved
+  - The support for only send e-mails which have been scheduled for this time of day
+    * This is usefull, when you have a lot of data to go through and generate a lot of e-mails and then send them all at the same time.
+  - Also adding the support to send the e-mail immediately and ignoring the above checks.
+    * In the method which generates the e-mail you just call Email.queue.process! and all the e-mails which have set the
+    immediately_delivery to true is going to be attempted to be delivered right away
+  - Letting it be up to the user of the plugin to set the content_type in the calling of Email and not set it in the queue_store
+
 Author
 ======
 
-Geoff Evason
+René Madsen
 
 Based on plugin by
+Geoff Evason
 Andrew Beam
 KRAXNET s.r.o.
 
