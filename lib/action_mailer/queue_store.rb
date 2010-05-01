@@ -25,7 +25,7 @@ module ActionMailer
       end
     
       def self.process!(options = {})
-        self.for_send.with_processing_rules(:all, options).each { |q| q.deliver! }
+        self.for_send.with_processing_rules(:all, options.merge(:select => :id)).each { |q| self.find(q.id).deliver! }
       end
     
       def tmail=(mail)
@@ -64,22 +64,30 @@ module ActionMailer
         if self.immediately_delivery?
           self.update_attribute(:in_progress, true)
           mail = Mailer.deliver(self.to_tmail)
-          self.message_id = mail.message_id
-          self.sent = true
-          self.sent_at = Time.now
-          self.in_progress = false
-          self.save
+          if ActionMailer::Queue.destroy_message_after_deliver
+            self.destroy
+          else
+            self.message_id = mail.message_id
+            self.sent = true
+            self.sent_at = Time.now
+            self.in_progress = false
+            self.save
+          end
           return mail
         else
           raise NotApproved if !self.approved?
           raise NotScheduled if self.scheduled_time.strftime("%H:%M:00") != @current_time
           self.update_attribute(:in_progress, true)
           mail = Mailer.deliver(self.to_tmail)
-          self.message_id = mail.message_id
-          self.sent = true
-          self.sent_at = Time.now
-          self.in_progress = false
-          self.save
+          if ActionMailer::Queue.destroy_message_after_deliver
+            self.destroy
+          else
+            self.message_id = mail.message_id
+            self.sent = true
+            self.sent_at = Time.now
+            self.in_progress = false
+            self.save
+          end
           return mail
         end
       rescue => err

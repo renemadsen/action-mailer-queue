@@ -16,6 +16,9 @@ module ActionMailer
     @@delay_between_attempts_in_process = 240
     cattr_accessor :delay_between_attempts_in_process
 
+    @@destroy_message_after_deliver = false
+    cattr_accessor :destroy_message_after_deliver
+
     @@approved = false
     cattr_accessor :approved
 
