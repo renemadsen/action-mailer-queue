@@ -1,9 +1,6 @@
 module ActionMailer
   class Queue < ActionMailer::Base
     class Store < ActiveRecord::Base
-
-      establish_connection(:master_write_db)
-      set_table_name :emails
     
       named_scope :for_send, :conditions => [ "sent = ?", false]
       named_scope :already_sent, :conditions => [ "sent = ?", true]
