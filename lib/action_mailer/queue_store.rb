@@ -1,6 +1,9 @@
 module ActionMailer
   class Queue < ActionMailer::Base
     class Store < ActiveRecord::Base
+
+      establish_connection(:master_write_db)
+      set_table_name :emails
     
       named_scope :for_send, :conditions => [ "sent = ?", false]
       named_scope :already_sent, :conditions => [ "sent = ?", true]
@@ -14,7 +17,10 @@ module ActionMailer
       named_scope :without_error, :conditions => ["attempts = ?", 0]
     
       class MailAlreadySent < StandardError; end 
-      class MailInProgress < StandardError; end 
+      class MailInProgress < StandardError; end
+      class NotApproved < StandardError; end
+      class NotScheduled < StandardError; end
+      @current_time = Time.now.strftime("%H:%M:00")
     
       def self.create_by_table_name(table_name)
         self.set_table_name table_name
@@ -31,7 +37,8 @@ module ActionMailer
         self.bcc = mail['bcc'].to_s 
         self.reply_to = mail['reply_to'].to_s
         self.from = mail['from'].to_s
-        self.subject = mail.subject unless mail.subject.blank?     
+        self.subject = mail.subject unless mail.subject.blank?
+#        mail.base64_encode!
         self.content = mail.encoded
       end
     
@@ -43,7 +50,7 @@ module ActionMailer
         tmail.reply_to = self.reply_to.split(",") unless self.reply_to.blank?
         tmail.from = self.from.split(",") unless self.from.blank?
         tmail.subject = self.subject unless self.subject.blank?
-        tmail.content_type = "text/html"
+#        tmail.content_type = 'text/html; charset="utf-8"'
         return tmail
       end
     
@@ -54,23 +61,40 @@ module ActionMailer
       end
     
       def deliver!
+        actual_time = Time.now
+        @current_time = actual_time.strftime("%H:%M:00")
         self.reload
         raise MailAlreadySent if self.sent?
         raise MailInProgress if self.in_progress?
-        self.update_attribute(:in_progress, true)
-        mail = Mailer.deliver(self.to_tmail)
-        self.message_id = mail.message_id
-        self.sent = true
-        self.sent_at = Time.now
-        self.in_progress = false
-        self.save
-        return mail
+        if self.immediately_delivery?
+          self.update_attribute(:in_progress, true)
+          mail = Mailer.deliver(self.to_tmail)
+          self.message_id = mail.message_id
+          self.sent = true
+          self.sent_at = Time.now
+          self.in_progress = false
+          self.save
+          return mail
+        else
+          raise NotApproved if !self.approved?
+          raise NotScheduled if self.scheduled_time.strftime("%H:%M:00") != @current_time
+          self.update_attribute(:in_progress, true)
+          mail = Mailer.deliver(self.to_tmail)
+          self.message_id = mail.message_id
+          self.sent = true
+          self.sent_at = Time.now
+          self.in_progress = false
+          self.save
+          return mail
+        end
       rescue => err
-        raise MailAlreadySent if err.class == ActionMailer::Queue::Store::MailAlreadySent 
-        self.attempts += 1
-        self.last_error = err.to_s
-        self.last_attempt_at = Time.now
-        self.in_progress = false
+        raise MailAlreadySent if err.class == ActionMailer::Queue::Store::MailAlreadySent
+        self.last_error = err.to_s + ' ' + self.scheduled_time.strftime("%H:%M:00").to_s + ' '+ @current_time.to_s
+        if err.class != ActionMailer::Queue::Store::NotApproved && err.class != ActionMailer::Queue::Store::NotScheduled
+          self.attempts += 1
+          self.last_attempt_at = Time.now
+          self.in_progress = false
+        end
         self.save
         return false
       end

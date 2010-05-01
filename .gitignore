@@ -11,3 +11,4 @@ db/*.sqlite3
 config/database.sqlite.yml
 config/database.mysql.yml
 config/appconfig.yml
+.idea

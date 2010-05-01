@@ -15,6 +15,15 @@ module ActionMailer
     
     @@delay_between_attempts_in_process = 240
     cattr_accessor :delay_between_attempts_in_process
+
+    @@approved = false
+    cattr_accessor :approved
+
+    @@scheduled_time = '09:00:00'
+    cattr_accessor :scheduled_time
+
+    @@immediately_delivery = false
+    cattr_accessor :immediately_delivery
   
     def self.queue
       return new.queue
@@ -25,7 +34,7 @@ module ActionMailer
     end
   
     def perform_delivery_action_mailer_queue(mail)
-      store = self.queue.new(:tmail => mail, :method =>  "#{mailer_name}.#{@template}")
+      store = self.queue.new(:tmail => mail, :method =>  "#{mailer_name}.#{@template}", :approved => approved, :scheduled_time => scheduled_time, :immediately_delivery => immediately_delivery)
       store.save
       mail.queue_id = store.id
       return true
